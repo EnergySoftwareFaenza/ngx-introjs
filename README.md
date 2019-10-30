@@ -1,27 +1,41 @@
-# NgxIntrojs
+##How to use
+1) Install the package with
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.0.
+npm install @esfaenza/ngx-introjs
 
-## Development server
+(you should check the version you need. from Angular version 8 onward i followed Angular's version, from 8 downward just try the last available build)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+2) In your module:
 
-## Code scaffolding
+import { IntroJsModule } from "@esfaenza/ngx-introjs"
+...
+@NgModule({
+imports: [IntroJsModule, etc...],
+declarations: [your stuff],
+exports: [your stuff]
+})
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+3) In your component's .ts define the Intro's data
 
-## Build
+public const IntroItems = {
+'Group': '1',
+'1': 'Step 1 description',
+'2': 'Step 2 description'
+};
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+4) In your HTML attach the directive where you need it
 
-## Running unit tests
+[intro]="IntroItems" [Order]="1"
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+5) To make the presentation start, inject IntroJsService like so in your component:
 
-## Running end-to-end tests
+import { IntroJsService } from "@esfaenza/ngx-introjs";
+constructor(public introService: IntroJsService, etc...) { }
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+6) and use it like so:
 
-## Further help
+this.introService.start(null, '1');
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+7) If you want to change the default Options of intro.js you can use
+
+this.introService.setOptions(...)

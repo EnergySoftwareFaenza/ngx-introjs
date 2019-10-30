@@ -17,6 +17,13 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ngx-intro-js": [ "dist/ngx-intro-js" ],
+      "ngx-intro-js/*": [ "dist/ngx-intro-js/*" ]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": true
   }
 }
