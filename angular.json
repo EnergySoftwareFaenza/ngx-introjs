@@ -25,11 +25,8 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
-              "node_modules/intro.js/introjs.css",
+              "introjs.css",
               "src/styles.css"
-            ],
-            "scripts": [
-              "node_modules/intro.js/intro.js"
             ],
             "es5BrowserSupport": true,
             "aot": true
