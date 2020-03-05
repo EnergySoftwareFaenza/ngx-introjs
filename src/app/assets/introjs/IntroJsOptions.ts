@@ -1,0 +1,31 @@
+export interface IntroJsOptions {
+    nextLabel: string;
+    prevLabel: string;
+    skipLabel: string;
+    doneLabel: string;
+    hidePrev: boolean;
+    hideNext: boolean;
+    tooltipPosition: string;
+    tooltipClass: string;
+    highlightClass: string;
+    exitOnEsc: boolean;
+    exitOnOverlayClick: boolean;
+    showStepNumbers: boolean;
+    keyboardNavigation: boolean;
+    showButtons: boolean;
+    showBullets: boolean;
+    showProgress: boolean;
+    scrollToElement: boolean;
+    scrollTo: string;
+    scrollPadding: number;
+    overlayOpacity: number;
+    positionPrecedence: string[];
+    disableInteraction: boolean;
+    helperElementPadding: number;
+    hintPosition: string;
+    hintButtonLabel: string;
+    hintAnimation: boolean;
+    buttonClass: string;
+    steps: any[];
+    hints: any[];
+}
