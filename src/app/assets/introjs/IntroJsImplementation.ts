@@ -82,8 +82,8 @@ export class IntroJsImplementation {
             hintAnimation: true,
             /* additional classes to put on the buttons */
             buttonClass: 'introjs-button',
-            steps: [],
-            hints: []
+            steps: null,
+            hints: null
         };
     }
     public _introForElement(targetElm, group) {
@@ -207,9 +207,9 @@ export class IntroJsImplementation {
         // set it to the introJs object
         this._introItems = introItems;
         // add overlay layer to the page
-        if (this._addOverlayLayer.call(this, targetElm)) {
+        if (this._addOverlayLayer(targetElm)) {
             // then, start the show
-            this._nextStep.call(this);
+            this._nextStep();
             if (this._options.keyboardNavigation) {
                 this.DOMEvent.on(window, 'keydown', this._onKeyDown, this, true);
             }
@@ -309,7 +309,7 @@ export class IntroJsImplementation {
         const nextStep = this._introItems[this._currentStep];
         let continueStep = true;
         if (typeof (this._introBeforeChangeCallback) !== 'undefined') {
-            continueStep = this._introBeforeChangeCallback.call(this, nextStep.element);
+            continueStep = this._introBeforeChangeCallback(nextStep.element);
         }
         // if `onbeforechange` returned `false`, stop displaying the element
         if (continueStep === false) {
@@ -320,7 +320,7 @@ export class IntroJsImplementation {
             // end of the intro
             // check if any callback is defined
             if (typeof (this._introCompleteCallback) === 'function') {
-                this._introCompleteCallback.call(this);
+                this._introCompleteCallback();
             }
             this._exitIntro(this._targetElement);
             return;
@@ -347,9 +347,9 @@ export class IntroJsImplementation {
     }
     public _refresh() {
         // re-align intros
-        this._setHelperLayerPosition.call(this, document.querySelector('.introjs-helperLayer'));
-        this._setHelperLayerPosition.call(this, document.querySelector('.introjs-tooltipReferenceLayer'));
-        this._setHelperLayerPosition.call(this, document.querySelector('.introjs-disableInteraction'));
+        this._setHelperLayerPosition(document.querySelector('.introjs-helperLayer'));
+        this._setHelperLayerPosition(document.querySelector('.introjs-tooltipReferenceLayer'));
+        this._setHelperLayerPosition(document.querySelector('.introjs-disableInteraction'));
         // re-align tooltip
         if (this._currentStep !== undefined && this._currentStep !== null) {
             const oldHelperNumberLayer = document.querySelector('.introjs-helperNumberLayer'), oldArrowLayer = document.querySelector('.introjs-arrow'), oldtooltipContainer = document.querySelector('.introjs-tooltip');
@@ -364,7 +364,7 @@ export class IntroJsImplementation {
         //
         // If this callback return `false`, it would halt the process
         if (this._introBeforeExitCallback !== undefined) {
-            continueExit = this._introBeforeExitCallback.call(this);
+            continueExit = this._introBeforeExitCallback();
         }
         // skip this check if `force` parameter is `true`
         // otherwise, if `onbeforeexit` returned `false`, don't exit the intro
@@ -413,7 +413,7 @@ export class IntroJsImplementation {
         this.DOMEvent.off(window, 'resize', this._onResize, this, true);
         // check if any callback is defined
         if (this._introExitCallback !== undefined) {
-            this._introExitCallback.call(this);
+            this._introExitCallback();
         }
         // set the step to zero
         this._currentStep = undefined;
@@ -710,7 +710,7 @@ export class IntroJsImplementation {
         if (typeof (this._introChangeCallback) !== 'undefined') {
             this._introChangeCallback(targetElement.element);
         }
-        const self = this;
+
         const oldHelperLayer = document.querySelector('.introjs-helperLayer');
         const oldReferenceLayer = document.querySelector('.introjs-tooltipReferenceLayer');
         let highlightClass = 'introjs-helperLayer';
@@ -757,8 +757,8 @@ export class IntroJsImplementation {
                 this._scrollParentToElement(scrollParent, targetElement.element);
             }
             // set new position to helper layer
-            this._setHelperLayerPosition.call(self, oldHelperLayer);
-            this._setHelperLayerPosition.call(self, oldReferenceLayer);
+            this._setHelperLayerPosition(oldHelperLayer);
+            this._setHelperLayerPosition(oldReferenceLayer);
             // remove `introjs-fixParent` class from the elements
             const fixParents = document.querySelectorAll('.introjs-fixParent');
             this._forEach(fixParents, (parent) => {
@@ -767,10 +767,10 @@ export class IntroJsImplementation {
             // remove old classes if the element still exist
             this._removeShowElement();
             // we should wait until the CSS3 transition is competed (it's 0.3 sec) to prevent incorrect `height` and `width` calculation
-            if (self._lastShowElementTimer) {
-                window.clearTimeout(self._lastShowElementTimer);
+            if (this._lastShowElementTimer) {
+                window.clearTimeout(this._lastShowElementTimer);
             }
-            self._lastShowElementTimer = window.setTimeout(function() {
+            this._lastShowElementTimer = window.setTimeout(() => {
                 // set current step to the label
                 if (oldHelperNumberLayer !== null) {
                     oldHelperNumberLayer.innerHTML = targetElement.step;
@@ -779,14 +779,14 @@ export class IntroJsImplementation {
                 oldtooltipLayer.innerHTML = targetElement.intro;
                 // set the tooltip position
                 (oldtooltipContainer as any).style.display = 'block';
-                this._placeTooltip.call(self, targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
+                this._placeTooltip(targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer, null);
                 // change active bullet
-                if (self._options.showBullets) {
+                if (this._options.showBullets) {
                     oldReferenceLayer.querySelector('.introjs-bullets li > a.active').className = '';
                     oldReferenceLayer.querySelector('.introjs-bullets li > a[data-stepnumber="' + targetElement.step + '"]').className = 'active';
                 }
-                (oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar') as any).style.cssText = 'width:' + this._getProgress.call(self) + '%;';
-                oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar').setAttribute('aria-valuenow', this._getProgress.call(self));
+                (oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar') as any).style.cssText = 'width:' + this._getProgress() + '%;';
+                oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar').setAttribute('aria-valuenow', this._getProgress().toString());
                 // show the tooltip
                 (oldtooltipContainer as any).style.opacity = 1;
                 if (oldHelperNumberLayer) {
@@ -801,7 +801,7 @@ export class IntroJsImplementation {
                     nextTooltipButton.focus();
                 }
                 // change the scroll of the window, if needed
-                this._scrollTo.call(self, targetElement.scrollTo, targetElement, oldtooltipLayer);
+                this._scrollTo(targetElement.scrollTo, targetElement, oldtooltipLayer);
             }, 350);
             // end of old element if-else condition
         } else {
@@ -814,8 +814,8 @@ export class IntroJsImplementation {
                 this._scrollParentToElement(scrollParent, targetElement.element);
             }
             // set new position to helper layer
-            this._setHelperLayerPosition.call(self, helperLayer);
-            this._setHelperLayerPosition.call(self, referenceLayer);
+            this._setHelperLayerPosition(helperLayer);
+            this._setHelperLayerPosition(referenceLayer);
             // add helper layer to target element
             this._targetElement.appendChild(helperLayer);
             this._targetElement.appendChild(referenceLayer);
@@ -828,9 +828,12 @@ export class IntroJsImplementation {
             }
             const ulContainer = document.createElement('ul');
             ulContainer.setAttribute('role', 'tablist');
+
+            let self = this;
             const anchorClick = function() {
                 self._goToStep(this.getAttribute('data-stepnumber'));
             };
+
             this._forEach(this._introItems, (item, i) => {
                 const innerLi = document.createElement('li');
                 const anchorLink = document.createElement('a');
@@ -856,8 +859,8 @@ export class IntroJsImplementation {
             progressBar.setAttribute('role', 'progress');
             progressBar.setAttribute('aria-valuemin', '0');
             progressBar.setAttribute('aria-valuemax', '100');
-            progressBar.setAttribute('aria-valuenow', this._getProgress.call(this));
-            progressBar.style.cssText = 'width:' + this._getProgress.call(this) + '%;';
+            progressBar.setAttribute('aria-valuenow', this._getProgress().toString());
+            progressBar.style.cssText = 'width:' + this._getProgress() + '%;';
             progressLayer.appendChild(progressBar);
             buttonsLayer.className = 'introjs-tooltipbuttons';
             if (this._options.showButtons === false) {
@@ -878,18 +881,18 @@ export class IntroJsImplementation {
             referenceLayer.appendChild(tooltipLayer);
             // next button
             nextTooltipButton = document.createElement('a');
-            nextTooltipButton.onclick = function() {
-                if (self._introItems.length - 1 !== self._currentStep) {
-                    this._nextStep.call(self);
+            nextTooltipButton.onclick = () => {
+                if (this._introItems.length - 1 !== this._currentStep) {
+                    this._nextStep();
                 }
             };
             this._setAnchorAsButton(nextTooltipButton);
             nextTooltipButton.innerHTML = this._options.nextLabel;
             // previous button
             prevTooltipButton = document.createElement('a');
-            prevTooltipButton.onclick = function() {
-                if (self._currentStep !== 0) {
-                    this._previousStep.call(self);
+            prevTooltipButton.onclick = () => {
+                if (this._currentStep !== 0) {
+                    this._previousStep();
                 }
             };
             this._setAnchorAsButton(prevTooltipButton);
@@ -900,16 +903,16 @@ export class IntroJsImplementation {
             this._setAnchorAsButton(skipTooltipButton);
             skipTooltipButton.innerHTML = this._options.skipLabel;
             skipTooltipButton.onclick = () => {
-                if (self._introItems.length - 1 === self._currentStep && typeof (self._introCompleteCallback) === 'function') {
-                    self._introCompleteCallback.call(self);
+                if (this._introItems.length - 1 === this._currentStep && typeof (this._introCompleteCallback) === 'function') {
+                    this._introCompleteCallback();
                 }
-                if (self._introItems.length - 1 !== self._currentStep && typeof (self._introExitCallback) === 'function') {
-                    self._introExitCallback.call(self);
+                if (this._introItems.length - 1 !== this._currentStep && typeof (this._introExitCallback) === 'function') {
+                    this._introExitCallback();
                 }
-                if (typeof (self._introSkipCallback) === 'function') {
-                    self._introSkipCallback.call(self);
+                if (typeof (this._introSkipCallback) === 'function') {
+                    this._introSkipCallback();
                 }
-                this._exitIntro.call(self, self._targetElement);
+                this._exitIntro(this._targetElement);
             };
             buttonsLayer.appendChild(skipTooltipButton);
             // in order to prevent displaying next/previous button always
@@ -919,19 +922,19 @@ export class IntroJsImplementation {
             }
             tooltipLayer.appendChild(buttonsLayer);
             // set proper position
-            this._placeTooltip.call(self, targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer);
+            this._placeTooltip(targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer, null);
             // change the scroll of the window, if needed
-            this._scrollTo.call(this, targetElement.scrollTo, targetElement, tooltipLayer);
+            this._scrollTo(targetElement.scrollTo, targetElement, tooltipLayer);
             // end of new element if-else condition
         }
         // removing previous disable interaction layer
-        const disableInteractionLayer = self._targetElement.querySelector('.introjs-disableInteraction');
+        const disableInteractionLayer = this._targetElement.querySelector('.introjs-disableInteraction');
         if (disableInteractionLayer) {
             disableInteractionLayer.parentNode.removeChild(disableInteractionLayer);
         }
         // disable interaction
         if (targetElement.disableInteraction) {
-            this._disableInteraction.call(self);
+            this._disableInteraction();
         }
         // when it's the first step of tour
         if (this._currentStep === 0 && this._introItems.length > 1) {
@@ -1009,7 +1012,7 @@ export class IntroJsImplementation {
             };
         }
         if (typeof (this._introAfterChangeCallback) !== 'undefined') {
-            this._introAfterChangeCallback.call(this, targetElement.element);
+            this._introAfterChangeCallback(targetElement.element);
         }
     }
     private _scrollTo(scrollTo, targetElement, tooltipLayer) {
@@ -1236,7 +1239,7 @@ export class IntroJsImplementation {
                 });
             }, null);
         }
-        this._addHints.call(this);
+        this._addHints();
         /*
         todo:
         these events should be removed at some point
@@ -1249,7 +1252,7 @@ export class IntroJsImplementation {
             if (typeof (item.targetElement) === 'undefined') {
                 return;
             }
-            this._alignHintPosition.call(this, item.hintPosition, item.element, item.targetElement);
+            this._alignHintPosition(item.hintPosition, item.element, item.targetElement);
         }, null);
     }
     private _hintQuerySelectorAll(selector) {
@@ -1264,13 +1267,13 @@ export class IntroJsImplementation {
         }
         // call the callback function (if any)
         if (typeof (this._hintCloseCallback) !== 'undefined') {
-            this._hintCloseCallback.call(this, stepId);
+            this._hintCloseCallback(stepId);
         }
     }
     public _hideHints() {
         const hints = this._hintQuerySelectorAll('.introjs-hint');
         this._forEach(hints, (hint) => {
-            this._hideHint.call(this, hint.getAttribute('data-step'));
+            this._hideHint(hint.getAttribute('data-step'));
         });
     }
     public _showHints() {
@@ -1348,14 +1351,14 @@ export class IntroJsImplementation {
             item.targetElement = item.element;
             item.element = hint;
             // align the hint position
-            this._alignHintPosition.call(this, item.hintPosition, hint, item.targetElement);
+            this._alignHintPosition(item.hintPosition, hint, item.targetElement);
             hintsWrapper.appendChild(hint);
         });
         // adding the hints wrapper
         document.body.appendChild(hintsWrapper);
         // call the callback function (if any)
         if (typeof (this._hintsAddedCallback) !== 'undefined') {
-            this._hintsAddedCallback.call(this);
+            this._hintsAddedCallback();
         }
     }
     private _alignHintPosition(position, hint, element) {
@@ -1409,10 +1412,10 @@ export class IntroJsImplementation {
         const item = this._introItems[stepId];
         // call the callback function (if any)
         if (typeof (this._hintClickCallback) !== 'undefined') {
-            this._hintClickCallback.call(this, hintElement, item, stepId);
+            this._hintClickCallback(hintElement, item, stepId);
         }
         // remove all open tooltips
-        const removedStep = this._removeHintTooltip.call(this);
+        const removedStep = this._removeHintTooltip();
         // to toggle the tooltip
         if (parseInt(removedStep, 10) === stepId) {
             return;
