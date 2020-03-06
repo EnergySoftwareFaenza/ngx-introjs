@@ -201,7 +201,7 @@ export class IntroJsImplementation {
         }
         introItems = tempIntroItems;
         // Ok, sort all items with given steps
-        introItems.sort(function(a, b) {
+        introItems.sort((a, b) => {
             return a.step - b.step;
         });
         // set it to the introJs object
@@ -376,11 +376,11 @@ export class IntroJsImplementation {
         if (overlayLayers && overlayLayers.length) {
             this._forEach(overlayLayers, (overlayLayer) => {
                 overlayLayer.style.opacity = 0;
-                window.setTimeout(function() {
-                    if (this.parentNode) {
-                        this.parentNode.removeChild(this);
+                window.setTimeout(() => {
+                    if (overlayLayer.parentNode) {
+                        overlayLayer.parentNode.removeChild(overlayLayer);
                     }
-                }.bind(overlayLayer), 500);
+                }, 500);
             }, null);
         }
         // remove all helper layers
@@ -599,7 +599,7 @@ export class IntroJsImplementation {
             this._removeEntry(possiblePositions, 'left');
         }
         // @var {String}  ex: 'right-aligned'
-        const desiredAlignment = (function(pos) {
+        const desiredAlignment = ((pos) => {
             const hyphenIndex = pos.indexOf('-');
             if (hyphenIndex !== -1) {
                 // has alignment
@@ -1182,12 +1182,12 @@ export class IntroJsImplementation {
         }
         targetElm.appendChild(overlayLayer);
         overlayLayer.onclick = () => {
-            if (self._options.exitOnOverlayClick === true) {
-                this._exitIntro(self, targetElm);
+            if (this._options.exitOnOverlayClick === true) {
+                this._exitIntro(targetElm);
             }
         };
-        window.setTimeout(function() {
-            styleText += 'opacity: ' + self._options.overlayOpacity.toString() + ';';
+        window.setTimeout(() => {
+            styleText += 'opacity: ' + this._options.overlayOpacity.toString() + ';';
             overlayLayer.style.cssText = styleText;
         }, 10);
         return true;
@@ -1279,9 +1279,9 @@ export class IntroJsImplementation {
     public _showHints() {
         const hints = this._hintQuerySelectorAll('.introjs-hint');
         if (hints && hints.length) {
-            this._forEach(hints, function(hint) {
+            this._forEach(hints, (hint) => {
                 this._showHint(hint.getAttribute('data-step'));
-            }.bind(this));
+            });
         } else {
             this._populateHints(this._targetElement);
         }
@@ -1425,7 +1425,7 @@ export class IntroJsImplementation {
         const arrowLayer = document.createElement('div');
         const referenceLayer = document.createElement('div');
         tooltipLayer.className = 'introjs-tooltip';
-        tooltipLayer.onclick = function(e) {
+        tooltipLayer.onclick = (e) => {
             // IE9 & Other Browsers
             if (e.stopPropagation) {
                 e.stopPropagation();
